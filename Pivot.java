@@ -17,7 +17,7 @@ public class Pivot {
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
     	String[] result = value.toString().split(",");
-    	for (int i = 0; i < result.length() ; i++) {
+    	for (int i = 0; i < result.length ; i++) {
     		context.write(new IntWritable(i),new IntWritable(Integer.parseInt(result[i])));
     	}
     }
