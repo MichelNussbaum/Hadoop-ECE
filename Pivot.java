@@ -16,9 +16,9 @@ public class Pivot {
   public static class PivotMapper extends Mapper<Object, Text, Text, IntWritable>{
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-    	String[] result = value.split(",");
+    	String[] result = value.toString().split(",");
     	for (int i = 0; i < result.length() ; i++) {
-    		context.write(new IntWritable(i),new IntWritable(result[i]));
+    		context.write(new IntWritable(i),new IntWritable(Integer.parseInt(result[i])));
     	}
     }
   }
