@@ -13,25 +13,25 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Pivot {
 
-  public static class PivotMapper extends Mapper<Object, Text, Text, IntWritable>{
-
+  public static class PivotMapper extends Mapper<Object, Text, IntWritable, Text>{
+      @Override
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-    	String[] result = value.toString().split(",");
-    	for (int i = 0; i < result.length ; i++) {
-    		context.write(new IntWritable(i),new IntWritable(Integer.parseInt(result[i])));
-    	}
+        String[] result = value.toString().split(",");
+        for (int i = 0; i < result.length ; i++) {
+            context.write(new IntWritable(i),new Text(result[i]));
+        }
     }
   }
 
-  public static class PivotReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
+  public static class PivotReducer extends Reducer<IntWritable,Text,IntWritable,Text> {
     private Text result = new Text();
-    public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-    	String t = "";
-    	for (IntWritable val : values) {
-    		t += val.toString() + ",";
-    	}
-    	result.set(t);
-    	context.write(key, result);
+    public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+        String t = "";
+        for (Text val : values) {
+            t += val.toString() + ",";
+        }
+        result.set(t);
+        context.write(key, result);
     }
   }
 
@@ -44,6 +44,8 @@ public class Pivot {
     job.setReducerClass(PivotReducer.class);
     job.setOutputKeyClass(IntWritable.class);
     job.setOutputValueClass(Text.class);
+    job.setMapOutputKeyClass(IntWritable.class);
+    job.setMapOutputValueClass(Text.class);
     FileInputFormat.addInputPath(job, new Path(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[1]));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
